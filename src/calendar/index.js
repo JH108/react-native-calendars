@@ -234,7 +234,7 @@ class Calendar extends Component {
       week.unshift(this.renderWeekNumber(days[days.length - 1].getWeek()));
     }
 
-    return (<View style={this.style.week} key={id}>{week}</View>);
+    return (<View style={[this.style.week, { borderTopWidth: 5, borderTopColor: this.props.addWeekColor[id] }]} key={id}>{week}</View>);
   }
 
   render() {
