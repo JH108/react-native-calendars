@@ -1,89 +1,112 @@
-import React, {Component} from 'react';
-import {
-  TouchableOpacity,
-  Text,
-} from 'react-native';
+import React, { Component } from 'react';
+import { TouchableOpacity, Text, View } from 'react-native';
 import PropTypes from 'prop-types';
 
 import styleConstructor from './style';
-import {shouldUpdate} from '../../../component-updater';
+import { shouldUpdate } from '../../../component-updater';
 
 class Day extends Component {
-  static propTypes = {
-    // TODO: disabled props should be removed
-    state: PropTypes.oneOf(['selected', 'disabled', 'today', '']),
+	static propTypes = {
+		// TODO: disabled props should be removed
+		state: PropTypes.oneOf(['selected', 'disabled', 'today', '']),
 
-    // Specify theme properties to override specific styles for calendar parts. Default = {}
-    theme: PropTypes.object,
-    marking: PropTypes.any,
-    onPress: PropTypes.func,
-    date: PropTypes.object
-  };
+		// Specify theme properties to override specific styles for calendar parts. Default = {}
+		theme: PropTypes.object,
+		marking: PropTypes.any,
+		onPress: PropTypes.func,
+		date: PropTypes.object,
+	};
 
-  constructor(props) {
-    super(props);
-    this.style = styleConstructor(props.theme);
-    this.onDayPress = this.onDayPress.bind(this);
-    this.onDayLongPress = this.onDayLongPress.bind(this);
-  }
+	constructor(props) {
+		super(props);
+		this.style = styleConstructor(props.theme);
+		this.onDayPress = this.onDayPress.bind(this);
+		this.onDayLongPress = this.onDayLongPress.bind(this);
+	}
 
-  onDayPress() {
-    this.props.onPress(this.props.date);
-  }
-  onDayLongPress() {
-    this.props.onLongPress(this.props.date);
-  }
+	onDayPress() {
+		this.props.onPress(this.props.date);
+	}
+	onDayLongPress() {
+		this.props.onLongPress(this.props.date);
+	}
 
-  shouldComponentUpdate(nextProps) {
-    return shouldUpdate(this.props, nextProps, ['state', 'children', 'marking', 'onPress', 'onLongPress']);
-  }
+	shouldComponentUpdate(nextProps) {
+		return shouldUpdate(this.props, nextProps, [
+			'state',
+			'children',
+			'marking',
+			'onPress',
+			'onLongPress',
+		]);
+	}
 
-  render() {
-    let containerStyle = [this.style.base];
-    let textStyle = [this.style.text];
+	render() {
+		let containerStyle = [this.style.base];
+		let textStyle = [this.style.text];
+		let dotStyle = [this.style.dot];
 
-    let marking = this.props.marking || {};
-    if (marking && marking.constructor === Array && marking.length) {
-      marking = {
-        marking: true
-      };
-    }
-    const isDisabled = typeof marking.disabled !== 'undefined' ? marking.disabled : this.props.state === 'disabled';
+		let marking = this.props.marking || {};
+		if (marking && marking.constructor === Array && marking.length) {
+			marking = {
+				marking: true,
+			};
+		}
 
-    if (marking.selected) {
-      containerStyle.push(this.style.selected);
-    } else if (isDisabled) {
-      textStyle.push(this.style.disabledText);
-    } else if (this.props.state === 'today') {
-      containerStyle.push(this.style.today);
-      textStyle.push(this.style.todayText);
-    }
+		const isDisabled =
+			typeof marking.disabled !== 'undefined'
+				? marking.disabled
+				: this.props.state === 'disabled';
 
-    if (marking.customStyles && typeof marking.customStyles === 'object') {
-      const styles = marking.customStyles;
-      if (styles.container) {
-        if (styles.container.borderRadius === undefined) {
-          styles.container.borderRadius = 16;
-        }
-        containerStyle.push(styles.container);
-      }
-      if (styles.text) {
-        textStyle.push(styles.text);
-      }
-    }
+		if (marking.selected) {
+			containerStyle.push(this.style.selected);
+		} else if (isDisabled) {
+			textStyle.push(this.style.disabledText);
+		} else if (this.props.state === 'today') {
+			containerStyle.push(this.style.today);
+			textStyle.push(this.style.todayText);
+		}
 
-    return (
-      <TouchableOpacity
-        style={containerStyle}
-        onPress={this.onDayPress}
-        onLongPress={this.onDayLongPress}
-        activeOpacity={marking.activeOpacity}
-        disabled={marking.disableTouchEvent}
-      >
-        <Text allowFontScaling={false} style={textStyle}>{String(this.props.children)}</Text>
-      </TouchableOpacity>
-    );
-  }
+		if (marking.customStyles && typeof marking.customStyles === 'object') {
+			const styles = marking.customStyles;
+			if (styles.container) {
+				if (styles.container.borderRadius === undefined) {
+					styles.container.borderRadius = 16;
+				}
+				containerStyle.push(styles.container);
+			}
+			if (styles.text) {
+				textStyle.push(styles.text);
+			}
+			if (styles.dot) {
+				dotStyles.push(styles.dot);
+			}
+		}
+
+		let dot;
+		if (marking.marked) {
+			dotStyle.push(this.style.visibleDot);
+			if (marking.dotColor) {
+				dotStyle.push({ backgroundColor: marking.dotColor });
+			}
+			dot = <View style={dotStyle} />;
+		}
+
+		return (
+			<TouchableOpacity
+				style={containerStyle}
+				onPress={this.onDayPress}
+				onLongPress={this.onDayLongPress}
+				activeOpacity={marking.activeOpacity}
+				disabled={marking.disableTouchEvent}
+			>
+				<Text allowFontScaling={false} style={textStyle}>
+					{String(this.props.children)}
+				</Text>
+				{dot}
+			</TouchableOpacity>
+		);
+	}
 }
 
 export default Day;
